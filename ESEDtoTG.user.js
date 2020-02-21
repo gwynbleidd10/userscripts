@@ -38,7 +38,7 @@ function pullTg(rk, chat, type){
     }
     else
     {
-        text = rk + ' ' + type;
+        text = type;
     }
     $.ajax({
         url: 'http://esedtotg.herokuapp.com?chat=' + chatId + '&text=' + text + '&number=' + rk + '&url=' + url,
