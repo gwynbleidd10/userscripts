@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         ESED to TG
+// @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
 // @version      0.8.1
 // @description  try to take over the world!
