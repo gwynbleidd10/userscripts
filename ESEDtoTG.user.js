@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      0.8.1
+// @version      0.8.2
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -12,9 +12,9 @@
 // ==/UserScript==
 
 //Настройки
-var userID = '337277275'; //ID пользователя Telegram.
-var username = 'Вадим Рудых'; //Username пользователя Telegram. Заполняется без @
-var chatID = '337277275'; //ID группы пользователя Telegram.
+var userID = ''; //ID пользователя Telegram.
+var username = ''; //Username пользователя Telegram. Заполняется без @
+var chatID = ''; //ID группы пользователя Telegram.
 //
 
 //var $ = window.jQuery;
