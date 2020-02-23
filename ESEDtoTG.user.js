@@ -18,10 +18,10 @@
 
 //Для заполнения пункта настроек напишите команду /user в группе Telegram. Полученные данные ввести в поля ниже.
 
-var tg_chatID = '-393307044'; //ID группы пользователя Telegram.
-var tg_userID = '337277275'; //ID пользователя Telegram.
-var tg_username = 'MinaRe0'; //Username пользователя Telegram. Вводитеся без @ etc. 'MinaRe0'
-var tg_name = 'Вадим Рудых'; //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
+var tg_chatID = ''; //ID группы пользователя Telegram.
+var tg_userID = ''; //ID пользователя Telegram.
+var tg_username = ''; //Username пользователя Telegram. Вводитеся без @ etc. 'MinaRe0'
+var tg_name = ''; //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
 
 
 /*
