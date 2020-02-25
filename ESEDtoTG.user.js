@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      0.8.6
+// @version      1.0.0
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -10,26 +10,16 @@
 // @run-at       document-idle
 // ==/UserScript==
 
- /*
-------------------------------------------------------------------------------------------------------
----------------------------------------------Настройки------------------------------------------------
-------------------------------------------------------------------------------------------------------
-*/
-
-//Для заполнения пункта настроек напишите команду /user в группе Telegram. Полученные данные ввести в поля ниже.
-
-var tg_chatID = '-393307044';//-1001430448491'; //ID группы пользователя Telegram.
-var tg_userID = GM_getValue('tg_userID'); //ID пользователя Telegram.
-var tg_name = GM_getValue('tg_name'); //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
-
 /*
 ------------------------------------------------------------------------------------------------------
 ---------------------------------------------Константы------------------------------------------------
 ------------------------------------------------------------------------------------------------------
 */
 
-//('-1001430448491' - Чат ЦТ, '-393307044' - Тестовый чат, )
-const chats = ['-1001430448491', '-393307044', '337277275'];
+const tg_chatID = '-1001430448491'; //-1001430448491'; //ID группы пользователя Telegram.
+const tg_userID = GM_getValue('tg_userID'); //ID пользователя Telegram.
+const tg_name = GM_getValue('tg_name'); //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
+const chats = ['-1001430448491', '-393307044', '337277275']; //('-1001430448491' - Чат ЦТ, '-393307044' - Тестовый чат, )
 
 /*
 ------------------------------------------------------------------------------------------------------
@@ -38,7 +28,7 @@ const chats = ['-1001430448491', '-393307044', '337277275'];
 */
 
 var checked = false;
-if (((tg_chatID != 'undefined') && (tg_chatID != '')) && ((tg_userID != 'undefined') && (tg_userID != '')) && ((tg_name != 'undefined') && (tg_name != '')))
+if (((typeof tg_chatID != 'undefined') && (tg_chatID != '')) && ((typeof tg_userID != 'undefined') && (tg_userID != '')) && ((typeof tg_name != 'undefined') && (tg_name != '')))
 {
     checked = true;
     if (!(chats.includes(tg_chatID)))
@@ -50,7 +40,6 @@ if (((tg_chatID != 'undefined') && (tg_chatID != '')) && ((tg_userID != 'undefin
 else
 {
     addSettings();
-    //alert('Перед работой скрипта необходимо заполнить все настройки!');
 }
 
  /*
@@ -76,7 +65,7 @@ if (checked){
         *   Проверка текущей страницы
         */
 
-        //Проверка страницы РК
+        //Проверка страницы РК и РКПД
         if (doc_rc.test(document.location.href) || doc_rcpd.test(document.location.href)) {
             console.log('-------------------DOC START-------------------');
             var i_doc_rc = setInterval(function() {
@@ -92,7 +81,7 @@ if (checked){
         *   Проверка всплывающих окон
         */
 
-        // + Проверка страницы отчёта
+        // Проверка страницы отчёта
         if (reply.test(document.location.href)) {
             console.log('-------------------REPLY START-------------------');
             var i_reply = setInterval(function() {
@@ -207,28 +196,30 @@ if (checked){
 
         // + Обработчик визы и подписи, направление на визу и подпись
         $('body').on("click", '#Send-btn-visa-podpis', function () {
-            var str = '', btn, slc = '', txt = '', type = '', state = '', com = '';
+            var str = '', btn, slc = '', txt = '', type = '', state = '', com = '', sub = undefined;
             var podpis = new RegExp(/.*подпис.*/i);
             if (podpis.test(document.title))
             {
                 type = 'podpis';
+                txt += '<b>' + $('input[name=signType]:checked').prop('labels')[1].innerText.trim() + '</b>';
             }
             else
             {
-                type = 'visa-';
+                type = 'visa';
                 var a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
                 txt += '<b>' + a[0].options[a[0].selectedIndex].text + '</b>';
             }
             if (document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.length > 0)
             {
-                txt += '\n==========\n<i>Комментарий</i>:\n' + document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.trim();
+                txt += '<i> | комментарий</i>:';
+                sub = document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.trim();
             }
-            pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt);
-            //btn = document.getElementById('Send-btn-visa-podpis');
-            //btn.setAttribute('data-action', '.APPLY 1');
-            //btn.removeAttribute('id');
+            pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt, sub);
+            btn = document.getElementById('Send-btn-visa-podpis');
+            btn.setAttribute('data-action', '.Save');
+            btn.removeAttribute('id');
             setTimeout(function() {
-                //btn.click();
+                btn.click();
             }, (1200));
 
         });
@@ -245,6 +236,20 @@ else{
     );
 };
 
+
+
+function pullTg(rk, url, type, text, subtext){
+    $.ajax({
+        url: 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url,
+        type: 'GET',
+        dataType: 'html',
+        success: function(res)
+        {
+            console.log('Отправлено');
+        }
+    });
+}
+
 function addSettings(){
     var html = '<style>body{padding: 10px;}</style>'+
         '<div style="background: white;border-radius: 10px;padding: 10px;margin: 0 auto; width: 400px;">'+
@@ -258,26 +263,10 @@ function addSettings(){
         '<div style="padding: 10px; text-align: center;">Введите данные полученные командой /user от бота</div>'+
         '</div>';
     document.getElementsByTagName('body')[0].innerHTML = html;
-    if (GM_getValue('tg_userID') != '' && GM_getValue('tg_userID') != 'undefined'){
+    if (GM_getValue('tg_userID') != '' && typeof GM_getValue('tg_userID') != 'undefined'){
         document.getElementById('addUserid').value = GM_getValue('tg_userID');
     }
-    if (GM_getValue('tg_name') != '' && GM_getValue('tg_name') != 'undefined'){
+    if (GM_getValue('tg_name') != '' && typeof GM_getValue('tg_name') != 'undefined'){
         document.getElementById('addName').value = GM_getValue('tg_name');
     }
-}
-
-function pullTg(rk, url, type, text){
-    $.ajax({
-        url: 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&url=' + url,
-        type: 'GET',
-        dataType: 'html',
-        success: function(res)
-        {
-            console.log('Отправлено');
-        }
-    });
-}
-
-function getRk(){
-    return document.getElementsByTagName('title')[0].innerText;
 }
