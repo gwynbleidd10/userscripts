@@ -62,6 +62,7 @@ else
 
 if (checked){
     $(document).ready(function() {
+
         var doc_rc = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/doc_rc\/doc_rc\.aspx.+$/i);
         var reply = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/resolution\/reply\.aspx.+$/i);
 
@@ -190,7 +191,7 @@ if (checked){
 
 function pullTg(rk, url, type, text){
     $.ajax({
-        url: 'http://esedtotg.herokuapp.com?tg_chatid/api=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_username=' + tg_username + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&url=' + url,
+        url: 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_username=' + tg_username + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&url=' + url,
         type: 'GET',
         dataType: 'html',
         success: function(res)
