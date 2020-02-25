@@ -62,12 +62,12 @@ else
 
 if (checked){
     $(document).ready(function() {
-        var doc_rc = new RegExp(/^http:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/doc_rc\/doc_rc\.aspx.+$/i);
-        var reply = new RegExp(/^http:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/resolution\/reply\.aspx.+$/i);
+        var doc_rc = new RegExp(/^http.{0,1}:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/doc_rc\/doc_rc\.aspx.+$/i);
+        var reply = new RegExp(/^http.{0,1}:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/resolution\/reply\.aspx.+$/i);
 
-        var doc_rcpd = new RegExp(/^http:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/prj_rc\/prj_rc\.aspx.*/i);
-        var visa = new RegExp(/^http:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/add_vs\.aspx.+$/i);
-        var visa_send = new RegExp(/^http:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/send\.aspx.+$/i);
+        var doc_rcpd = new RegExp(/^http.{0,1}:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/prj_rc\/prj_rc\.aspx.*/i);
+        var visa = new RegExp(/^http.{0,1}:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/add_vs\.aspx.+$/i);
+        var visa_send = new RegExp(/^http.{0,1}:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/send\.aspx.+$/i);
 
         console.log('-------------------PAGE LOAD-------------------');
 
