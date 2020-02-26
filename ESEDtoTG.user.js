@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      1.3.0
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -136,25 +136,18 @@ if (checked){
         *   Обработчик отчёта
         */
 
-        ///var a = window.opener.document.getElementById('test').parentNode.parentNode.parentNode
-                    //a.childNodes[4].textContent + ' от ' + a.childNodes[5].textContent
-                    //window.location.protocol + '//esed.sakha.gov.ru/esed/Pages' + a.childNodes[4].children[0].children[0].attributes['href'].textContent.replace(/^.{2}/, '')
-
-
-
-
         // + Обработчик отчёта, получение отчёта
         $('body').on("click", '#Save-btn-reply', function () {
             if (doc_rc.test(window.opener.location.href) || doc_rcpd.test(window.opener.location.href))
             {
-                pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value);
+                pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, window.opener.$('div.resolutionRoute-item a.cl.DEPARTMENT').last().text());
             }
             else
             {
                 var a = window.opener.document.getElementById('test').parentNode.parentNode.parentNode
                 var tRk = a.childNodes[4].textContent + ' от ' + a.childNodes[5].textContent
                 var tUrl = window.location.protocol + '//esed.sakha.gov.ru/esed/Pages' + a.childNodes[4].children[0].children[0].attributes['href'].textContent.replace(/^.{2}/, '')
-                pullTg(tRk, tUrl, 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value);
+                pullTg(tRk, tUrl, 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, $('div.resolutionRoute-item a.cl.DEPARTMENT').last().text());
             }
             var btn = document.getElementById('Save-btn-reply');
             btn.setAttribute('data-action', '.Save');
@@ -250,8 +243,17 @@ if (checked){
 }
 
 function pullTg(rk, url, type, text, subtext){
+    var path = '';
+    if (type == 'answer')
+    {
+        path = 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
+    }
+    else
+    {
+        path = 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
+    }
     $.ajax({
-        url: 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url,
+        url: path,
         type: 'GET',
         dataType: 'html',
         success: function(res)
