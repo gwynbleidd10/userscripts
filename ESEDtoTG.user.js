@@ -16,10 +16,10 @@
 ------------------------------------------------------------------------------------------------------
 */
 
-const tg_chatID = '-1001430448491'; //-1001430448491'; //ID группы пользователя Telegram.
-const tg_userID = GM_getValue('tg_userID'); //ID пользователя Telegram.
-const tg_name = GM_getValue('tg_name'); //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
-const chats = ['-1001430448491', '-393307044', '337277275']; //('-1001430448491' - Чат ЦТ, '-393307044' - Тестовый чат, )
+var tg_chatID = '-1001430448491'; //-1001430448491'; //ID группы пользователя Telegram.
+var tg_userID = GM_getValue('tg_userID'); //ID пользователя Telegram.
+var tg_name = GM_getValue('tg_name'); //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
+var chats = ['-1001430448491', '-393307044', '337277275']; //('-1001430448491' - Чат ЦТ, '-393307044' - Тестовый чат, )
 
 /*
 ------------------------------------------------------------------------------------------------------
@@ -40,6 +40,13 @@ if (((typeof tg_chatID != 'undefined') && (tg_chatID != '')) && ((typeof tg_user
 else
 {
     addSettings();
+
+    $("#addBtn").click(function(){
+        GM_setValue('tg_userID', document.getElementById('addUserid').value);
+        GM_setValue('tg_name', document.getElementById('addName').value);
+        location.reload();
+        return false;
+    });
 }
 
  /*
@@ -225,18 +232,6 @@ if (checked){
         });
     });
 }
-else{
-    $("#addBtn").click(
-        function(){
-            GM_setValue('tg_userID', document.getElementById('addUserid').value);
-            GM_setValue('tg_name', document.getElementById('addName').value);
-            location.reload();
-            return false;
-        }
-    );
-};
-
-
 
 function pullTg(rk, url, type, text, subtext){
     $.ajax({
@@ -258,7 +253,7 @@ function addSettings(){
         '<form id="addForm">'+
         'UserID: <input type="text" id="addUserid" style="width: 100%; margin-top: 5px;"/><br />'+
         'Отображаемое имя (прим. Вадим Рудых): <input type="text" id="addName" style="width: 100%; margin-top: 5px;"/><br />'+
-        '<p style="padding-top: 5x;"><input style="padding: 2px;" type="submit" id="addBtn" value="Сохранить"></p>'+
+        '<p style="padding-top: 5x;"><button type="button" style="padding: 2px;" id="addBtn">Сохранить</button></p>'+
         '</form>'+
         '<div style="padding: 10px; text-align: center;">Введите данные полученные командой /user от бота</div>'+
         '</div>';
