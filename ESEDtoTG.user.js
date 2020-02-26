@@ -136,9 +136,26 @@ if (checked){
         *   Обработчик отчёта
         */
 
+        ///var a = window.opener.document.getElementById('test').parentNode.parentNode.parentNode
+                    //a.childNodes[4].textContent + ' от ' + a.childNodes[5].textContent
+                    //window.location.protocol + '//esed.sakha.gov.ru/esed/Pages' + a.childNodes[4].children[0].children[0].attributes['href'].textContent.replace(/^.{2}/, '')
+
+
+
+
         // + Обработчик отчёта, получение отчёта
         $('body').on("click", '#Save-btn-reply', function () {
-            pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value);
+            if (doc_rc.test(window.opener.location.href) || doc_rcpd.test(window.opener.location.href))
+            {
+                pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value);
+            }
+            else
+            {
+                var a = window.opener.document.getElementById('test').parentNode.parentNode.parentNode
+                var tRk = a.childNodes[4].textContent + ' от ' + a.childNodes[5].textContent
+                var tUrl = window.location.protocol + '//esed.sakha.gov.ru/esed/Pages' + a.childNodes[4].children[0].children[0].attributes['href'].textContent.replace(/^.{2}/, '')
+                pullTg(tRk, tUrl, 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value);
+            }
             var btn = document.getElementById('Save-btn-reply');
             btn.setAttribute('data-action', '.Save');
             btn.removeAttribute('id');
