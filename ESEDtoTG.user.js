@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.2.0
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -40,8 +40,7 @@ if (((typeof tg_chatID != 'undefined') && (tg_chatID != '')) && ((typeof tg_user
 else
 {
     addSettings();
-
-    $("#addBtn").click(function(){
+     $("#addBtn").on("click", function(e) {
         GM_setValue('tg_userID', document.getElementById('addUserid').value);
         GM_setValue('tg_name', document.getElementById('addName').value);
         location.reload();
@@ -247,6 +246,7 @@ function pullTg(rk, url, type, text, subtext){
 
 function addSettings(){
     var html = '<style>body{padding: 10px;}</style>'+
+        '<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>'+
         '<div style="background: white;border-radius: 10px;padding: 10px;margin: 0 auto; width: 400px;">'+
         '<h3 style="text-align:center;">Настройки</h3>'+
         '<hr>'+
@@ -257,7 +257,7 @@ function addSettings(){
         '</form>'+
         '<div style="padding: 10px; text-align: center;">Введите данные полученные командой /user от бота</div>'+
         '</div>';
-    document.getElementsByTagName('body')[0].innerHTML = html;
+    document.getElementById('aspnetForm').innerHTML = html;
     if (GM_getValue('tg_userID') != '' && typeof GM_getValue('tg_userID') != 'undefined'){
         document.getElementById('addUserid').value = GM_getValue('tg_userID');
     }
