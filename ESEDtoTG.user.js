@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      1.3.1
+// @version      1.4.0
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
+// @grant        GM_info
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @run-at       document-idle
@@ -16,7 +17,7 @@
 ------------------------------------------------------------------------------------------------------
 */
 
-var tg_chatID = '-1001430448491'; //-1001430448491'; //ID группы пользователя Telegram.
+var tg_chatID = '-1001430448491'; //ID группы пользователя Telegram.
 var tg_userID = GM_getValue('tg_userID'); //ID пользователя Telegram.
 var tg_name = GM_getValue('tg_name'); //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
 var chats = ['-1001430448491', '-393307044', '337277275']; //('-1001430448491' - Чат ЦТ, '-393307044' - Тестовый чат, )
@@ -248,11 +249,11 @@ function pullTg(rk, url, type, text, subtext){
     var path = '';
     if (type == 'answer')
     {
-        path = 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
+        path = 'https://esedtotg.herokuapp.com/api?version='+ GM_info.script.version + '&tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
     }
     else
     {
-        path = 'https://esedtotg.herokuapp.com/api?tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
+        path = 'https://esedtotg.herokuapp.com/api?version='+ GM_info.script.version + '&tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
     }
     $.ajax({
         url: path,
