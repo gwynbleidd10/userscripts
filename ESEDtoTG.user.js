@@ -17,10 +17,7 @@
 ------------------------------------------------------------------------------------------------------
 */
 
-var tg_chatID = '-1001430448491'; //ID группы пользователя Telegram.
-var tg_userID = GM_getValue('tg_userID'); //ID пользователя Telegram.
-var tg_name = GM_getValue('tg_name'); //Ваше имя, понятное для всех etc. 'Вадим Рудых'.
-var chats = ['-1001430448491', '-393307044', '337277275']; //('-1001430448491' - Чат ЦТ, '-393307044' - Тестовый чат, )
+var userid = GM_getValue('tg_userID'); //ID пользователя Telegram.
 
 /*
 ------------------------------------------------------------------------------------------------------
@@ -29,21 +26,15 @@ var chats = ['-1001430448491', '-393307044', '337277275']; //('-1001430448491' -
 */
 
 var checked = false;
-if (((typeof tg_chatID != 'undefined') && (tg_chatID != '')) && ((typeof tg_userID != 'undefined') && (tg_userID != '')) && ((typeof tg_name != 'undefined') && (tg_name != '')))
+if ((typeof userid != 'undefined') && (userid != ''))
 {
     checked = true;
-    if (!(chats.includes(tg_chatID)))
-    {
-        checked = false;
-        alert('Введен неверный ID группы.');
-    }
 }
 else
 {
     addSettings();
      $("#addBtn").on("click", function(e) {
         GM_setValue('tg_userID', document.getElementById('addUserid').value);
-        GM_setValue('tg_name', document.getElementById('addName').value);
         location.reload();
         return false;
     });
@@ -57,6 +48,7 @@ else
 
 if (checked){
     $(document).ready(function() {
+        var btn = '';
 
         var doc_rc = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/doc_rc\/doc_rc\.aspx.+$/i);
         var doc_rcpd = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/prj_rc\/prj_rc\.aspx.*/i);
@@ -98,6 +90,10 @@ if (checked){
                     var btn = document.querySelector('div[data-action=".Save"');
                     btn.setAttribute('id', 'Save-btn-reply');
                     btn.removeAttribute('data-action');
+                    if (window.opener.document.querySelector('.tabItem.current').text.trim() != 'Краткие сведения')
+                    {
+                        alert('Перейдите на "Визу/Подпись" со вкладки "Краткие сведения" на странице "РК/РКПД", иначе уведомление в Telegram не уйдет!')
+                    };
                     console.log('-------------------REPLY LOAD-------------------');
                 }
             }, (50));
@@ -128,6 +124,10 @@ if (checked){
                     var btn = document.querySelector('div[data-action=".Save"');
                     btn.setAttribute('id', 'Send-btn-visa-podpis');
                     btn.removeAttribute('data-action');
+                    if (window.opener.document.querySelector('.tabItem.current').text.trim() != 'Краткие сведения')
+                    {
+                        alert('Перейдите на "Визу/Подпись" со вкладки "Краткие сведения" на странице "РК/РКПД", иначе уведомление в Telegram не уйдет!')
+                    };
                     console.log('-------------------VISA_PODPIS LOAD-------------------');
                 }
             }, (50));
@@ -139,12 +139,25 @@ if (checked){
 
         // + Обработчик отчёта, получение отчёта
         $('body').on("click", '#Save-btn-reply', function () {
+            //Из РК
             if (doc_rc.test(window.opener.location.href) || doc_rcpd.test(window.opener.location.href))
             {
+                //Кто назначил
                 var from = window.opener.$('a.cl.DEPARTMENT').last().text().split(' ');
                 from = from[1] + ' ' + from[0];
-                pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, from);
+                var a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
+                var sub;
+                if (a[0].selectedIndex == '-1')
+                {
+                    sub = '<b>Не выбран</b>';
+                }
+                else
+                {
+                    sub = '<b>' + a[0].options[a[0].selectedIndex].text + '</b>';
+                }
+                pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, from, sub);
             }
+            //Из списка
             else
             {
                 //var a = window.opener.document.getElementById('test').parentNode.parentNode.parentNode
@@ -152,7 +165,7 @@ if (checked){
                 //var tUrl = window.location.protocol + '//esed.sakha.gov.ru/esed/Pages' + a.childNodes[4].children[0].children[0].attributes['href'].textContent.replace(/^.{2}/, '')
                 //pullTg(tRk, tUrl, 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, $('div.resolutionRoute-item a.cl.DEPARTMENT').last().text());
             }
-            var btn = document.getElementById('Save-btn-reply');
+            btn = document.getElementById('Save-btn-reply');
             btn.setAttribute('data-action', '.Save');
             btn.removeAttribute('id');
             setTimeout(function() {
@@ -168,6 +181,7 @@ if (checked){
         $('body').on("click", '#Send-btn-visa', function () {
             var str = '', btn, slc = '', txt = '', type = '';
             var podpis = new RegExp(/.*подпис.*/i);
+            //Определение типа
             if (podpis.test(document.title))
             {
                 type = 'podpis-send';
@@ -176,6 +190,7 @@ if (checked){
             {
                 type = 'visa-send'
             }
+            //Адресаты
             if (visa.test(document.location.href))
             {
                 slc = document.querySelector('.simpleList.ui-sortable').textContent.trim().length > 0;
@@ -183,11 +198,12 @@ if (checked){
             }
             else
             {
-                slc = document.querySelector('div.content .row .clipped').textContent.trim().length > 0;
-                txt = document.querySelector('div.content .row .clipped').textContent.trim().toString();
+                slc = document.querySelector('div.content.row.clipped').textContent.trim().length > 0;
+                txt = document.querySelector('div.content.row.clipped').textContent.trim().toString();
             }
             if (slc)
             {
+                //Срок
                 if (document.getElementById('3_undefined_PERIOD').value.length > 0)
                 {
                     pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt);
@@ -213,10 +229,15 @@ if (checked){
         *   Обработчик визы и подписи
         */
 
-        // + Обработчик визы и подписи, направление на визу и подпись
+        // + Обработчик визы и подписи
         $('body').on("click", '#Send-btn-visa-podpis', function () {
             var str = '', btn, slc = '', txt = '', type = '', state = '', com = '', sub = undefined;
             var podpis = new RegExp(/.*подпис.*/i);
+            var to = [];
+            for (var i = 0; i < window.opener.document.querySelectorAll('div.lstItem a').length; i++)
+            {
+                to.push(window.opener.document.querySelectorAll('div.lstItem a')[i].text.trim());
+            }
             if (podpis.test(document.title))
             {
                 type = 'podpis';
@@ -230,10 +251,10 @@ if (checked){
             }
             if (document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.length > 0)
             {
-                txt += '<i> | комментарий</i>:';
+                txt += '<i> | Комментарий</i>:';
                 sub = document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.trim();
             }
-            pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt, sub);
+            pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt, to.toString(), sub);
             btn = document.getElementById('Send-btn-visa-podpis');
             btn.setAttribute('data-action', '.Save');
             btn.removeAttribute('id');
@@ -245,16 +266,9 @@ if (checked){
     });
 }
 
-function pullTg(rk, url, type, text, subtext){
-    var path = '';
-    if (type == 'answer')
-    {
-        path = 'https://esedtotg.herokuapp.com/api?version='+ GM_info.script.version + '&tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
-    }
-    else
-    {
-        path = 'https://esedtotg.herokuapp.com/api?version='+ GM_info.script.version + '&tg_chatid=' + tg_chatID + '&tg_userid=' + tg_userID + '&tg_name=' + tg_name + '&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url
-    }
+function pullTg(rk, url, type, text, to, subtext){
+    //var path = 'http://127.0.0.1:8080/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
+    var path = 'http://esedtotg.herokuapp.com/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
     $.ajax({
         url: path,
         type: 'GET',
@@ -274,7 +288,6 @@ function addSettings(){
         '<hr>'+
         '<form id="addForm">'+
         'UserID: <input type="text" id="addUserid" style="width: 100%; margin-top: 5px;"/><br />'+
-        'Отображаемое имя (прим. Вадим Рудых): <input type="text" id="addName" style="width: 100%; margin-top: 5px;"/><br />'+
         '<p style="padding-top: 5x;"><button type="button" style="padding: 2px;" id="addBtn">Сохранить</button></p>'+
         '</form>'+
         '<div style="padding: 10px; text-align: center;">Введите данные полученные командой /user от бота</div>'+
@@ -282,8 +295,5 @@ function addSettings(){
     document.getElementById('aspnetForm').innerHTML = html;
     if (GM_getValue('tg_userID') != '' && typeof GM_getValue('tg_userID') != 'undefined'){
         document.getElementById('addUserid').value = GM_getValue('tg_userID');
-    }
-    if (GM_getValue('tg_name') != '' && typeof GM_getValue('tg_name') != 'undefined'){
-        document.getElementById('addName').value = GM_getValue('tg_name');
     }
 }
