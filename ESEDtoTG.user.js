@@ -32,11 +32,6 @@ if ((typeof userid != 'undefined') && (userid != ''))
 else
 {
     addSettings();
-     $("#addBtn").on("click", function(e) {
-        GM_setValue('tg_userID', document.getElementById('addUserid').value);
-        location.reload();
-        return false;
-    });
 }
 
  /*
@@ -58,6 +53,11 @@ if (checked){
         var visa_podpis = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/visa_sign_edit\.aspx.+$/i);
 
         console.log('-------------------PAGE LOAD-------------------');
+
+        /*var node = document.createElement('span');
+        node.setAttribute('style', 'float: right; margin-right: 2em; cursor: pointer;');
+        node.innerText = 'версия скрипта ' + GM_info.script.version;
+        document.querySelector('.copyright').appendChild(node);*/
 
         /*
         *   Проверка текущей страницы
@@ -280,18 +280,23 @@ function pullTg(rk, url, type, text, to, subtext){
 }
 
 function addSettings(){
-    var html = '<style>body{padding: 10px;}</style>'+
-        '<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>'+
-        '<div style="background: white;border-radius: 10px;padding: 10px;margin: 0 auto; width: 400px;">'+
-        '<h3 style="text-align:center;">Настройки</h3>'+
-        '<hr>'+
-        '<form id="addForm">'+
-        'UserID: <input type="text" id="addUserid" style="width: 100%; margin-top: 5px;"/><br />'+
-        '<p style="padding-top: 5x;"><button type="button" style="padding: 2px;" id="addBtn">Сохранить</button></p>'+
-        '</form>'+
-        '<div style="padding: 10px; text-align: center;">Введите данные полученные командой /user от бота</div>'+
-        '</div>';
-    document.getElementById('aspnetForm').innerHTML = html;
+    var html = '<form id="addForm">Введите UserID полученный от бота: <input type="text" id="addUserid" style="width: 100%;"/></form>';
+    var node = document.createElement('div');
+    node.setAttribute('style', 'display:none;');
+    node.setAttribute('id', 'elementId');
+    node.setAttribute('title', 'Настройка');
+    node.innerHTML = html;
+    document.getElementById('aspnetForm').appendChild(node);
+    $("#elementId").dialog({buttons:{"Сохранить":function(){
+        if (document.getElementById('addUserid').value != ''){
+            GM_setValue('tg_userID', document.getElementById('addUserid').value);
+            $(this).dialog("close");
+        }
+    }}},{
+        modal:true,
+        width:400,
+        height:220
+    });
     if (GM_getValue('tg_userID') != '' && typeof GM_getValue('tg_userID') != 'undefined'){
         document.getElementById('addUserid').value = GM_getValue('tg_userID');
     }
