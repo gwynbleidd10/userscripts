@@ -197,8 +197,8 @@ if (checked){
             }
             else
             {
-                slc = document.querySelector('div.content.row.clipped').textContent.trim().length > 0;
-                txt = document.querySelector('div.content.row.clipped').textContent.trim().toString();
+                slc = document.querySelector('div.content div.row p.clipped').textContent.trim().length > 0;
+                txt = document.querySelector('div.content div.row p.clipped').textContent.trim().toString();
             }
             if (slc)
             {
