@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @version      2.1
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -267,7 +267,7 @@ if (checked){
 
 function pullTg(rk, url, type, text, to, subtext){
     //var path = 'http://127.0.0.1:8080/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
-    var path = 'http://esedtotg.herokuapp.com/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
+    var path = 'https://esedtotg.herokuapp.com/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
     $.ajax({
         url: path,
         type: 'GET',
