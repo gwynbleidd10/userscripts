@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.1.1
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -142,7 +142,7 @@ if (checked){
             if (doc_rc.test(window.opener.location.href) || doc_rcpd.test(window.opener.location.href))
             {
                 //Кто назначил
-                var from = window.opener.$('a.cl.DEPARTMENT').last().text().split(' ');
+                var from = window.opener.$('#resСontainer a.cl.DEPARTMENT').last().text().split(' ');
                 from = from[1] + ' ' + from[0];
                 var a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
                 var sub;
