@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      2.1.1
+// @version      2.5
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -16,7 +16,9 @@
 ------------------------------------------------------------------------------------------------------
 */
 
-var userid = GM_getValue('tg_userID'); //ID пользователя Telegram.
+const userid = GM_getValue('tg_userID'); //ID пользователя Telegram.
+const apiPath = 'https://botsnode.herokuapp.com/api/esed' //'http://localhost:3000/api/esed';
+const scriptUrl = 'https://github.com/gwynbleidd10/userscripts/raw/master/ESEDtoTG.user.js';
 
 /*
 ------------------------------------------------------------------------------------------------------
@@ -24,7 +26,8 @@ var userid = GM_getValue('tg_userID'); //ID пользователя Telegram.
 ------------------------------------------------------------------------------------------------------
 */
 
-var checked = false;
+let checked = false;
+let outdated = false;
 if ((typeof userid != 'undefined') && (userid != ''))
 {
     checked = true;
@@ -42,17 +45,19 @@ else
 
 if (checked){
     $(document).ready(function() {
-        var btn = '';
+        let btn = '';
 
-        var doc_rc = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/doc_rc\/doc_rc\.aspx.+$/i);
-        var doc_rcpd = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/prj_rc\/prj_rc\.aspx.*/i);
+        let doc_rc = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/doc_rc\/doc_rc\.aspx.+$/i);
+        let doc_rcpd = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/prj_rc\/prj_rc\.aspx.*/i);
 
-        var reply = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/resolution\/reply\.aspx.+$/i);
-        var visa = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/add_vs\.aspx.+$/i);
-        var visa_send = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/send\.aspx.+$/i);
-        var visa_podpis = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/visa_sign_edit\.aspx.+$/i);
+        let reply = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/resolution\/reply\.aspx.+$/i);
+        let visa = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/add_vs\.aspx.+$/i);
+        let visa_send = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/send\.aspx.+$/i);
+        let visa_podpis = new RegExp(/^https?:\/\/esed\.sakha\.gov\.ru\/esed\/webrc\/visa_sign\/visa_sign_edit\.aspx.+$/i);
 
         console.log('-------------------PAGE LOAD-------------------');
+
+        getVersion();
 
         /*var node = document.createElement('span');
         node.setAttribute('style', 'float: right; margin-right: 2em; cursor: pointer;');
@@ -66,9 +71,15 @@ if (checked){
         //Проверка страницы РК и РКПД
         if (doc_rc.test(document.location.href) || doc_rcpd.test(document.location.href)) {
             console.log('-------------------DOC START-------------------');
-            var i_doc_rc = setInterval(function() {
+            let i_doc_rc = setInterval(function() {
                 console.log('1-1');
                 if (document.querySelector('div.currentFile') != null) {
+                    let author = [];
+                    for (let i = 0; i < document.querySelectorAll('div.lstItem a').length; i++)
+                    {
+                        author.push(document.querySelectorAll('div.lstItem a')[i].text.trim());
+                    }
+                    addHiddenElem(author.toString(),);
                     clearInterval(i_doc_rc);
                     console.log('-------------------DOC LOAD-------------------');
                 }
@@ -82,17 +93,23 @@ if (checked){
         // Проверка страницы отчёта
         if (reply.test(document.location.href)) {
             console.log('-------------------REPLY START-------------------');
-            var i_reply = setInterval(function() {
+            let i_reply = setInterval(function() {
                 console.log('2-1');
                 if (document.querySelector('div[data-action=".Save"') != null) {
                     clearInterval(i_reply);
-                    var btn = document.querySelector('div[data-action=".Save"');
+
+                    /*
+                    let node = document.createElement('div');
+                    node.innerHTML = 'Не оповещать (Ознакомление)    <input type="checkbox" id="test" style="all:initial">';
+                    //node.innerHTML = 'Не оповещать (Ознакомление)    <select><option>Нет</option><option>Да</option></select><input type="radio"><style></style>';
+                    //node.innerHTML = '<input type="radio" id="contactChoice1" name="contact" value="email"><label for="contactChoice1">Email</label><input type="radio" id="contactChoice2" name="contact" value="phone"><label for="contactChoice2">Phone</label>';
+                    document.querySelector('.repStatus.ctrlHolder').appendChild(node);
+                    //document.querySelector('body').appendChild(node);
+                    */
+                    
+                    let btn = document.querySelector('div[data-action=".Save"');
                     btn.setAttribute('id', 'Save-btn-reply');
                     btn.removeAttribute('data-action');
-                    if (window.opener.document.querySelector('.tabItem.current').text.trim() != 'Краткие сведения')
-                    {
-                        alert('Перейдите на "Визу/Подпись" со вкладки "Краткие сведения" на странице "РК/РКПД", иначе уведомление в Telegram не уйдет!')
-                    };
                     console.log('-------------------REPLY LOAD-------------------');
                 }
             }, (50));
@@ -101,11 +118,11 @@ if (checked){
         //Проверка страницы отправки визы и подписи
         if (visa.test(document.location.href) || visa_send.test(document.location.href)) {
             console.log('-------------------VISA_PODPIS_SEND START-------------------');
-            var i_visa = setInterval(function() {
+            let i_visa = setInterval(function() {
                 console.log('2-2');
                 if (document.querySelector('div[data-action=".APPLY 1"') != null) {
                     clearInterval(i_visa);
-                    var btn = document.querySelector('div[data-action=".APPLY 1"');
+                    let btn = document.querySelector('div[data-action=".APPLY 1"');
                     btn.setAttribute('id', 'Send-btn-visa');
                     btn.removeAttribute('data-action');
                     console.log('-------------------VISA_PODPIS_SEND LOAD-------------------');
@@ -116,17 +133,13 @@ if (checked){
         //Проверка страницы визы и подписи
         if (visa_podpis.test(document.location.href)) {
             console.log('-------------------VISA_PODPIS START-------------------');
-            var i_visa_podpis = setInterval(function() {
+            let i_visa_podpis = setInterval(function() {
                 console.log('2-3');
                 if (document.querySelector('div[data-action=".Save"') != null) {
                     clearInterval(i_visa_podpis);
-                    var btn = document.querySelector('div[data-action=".Save"');
-                    btn.setAttribute('id', 'Send-btn-visa-podpis');
+                    let btn = document.querySelector('div[data-action=".Save"');
+                    btn.setAttribute('id', 'Send-btn-visa-sign');
                     btn.removeAttribute('data-action');
-                    if (window.opener.document.querySelector('.tabItem.current').text.trim() != 'Краткие сведения')
-                    {
-                        alert('Перейдите на "Визу/Подпись" со вкладки "Краткие сведения" на странице "РК/РКПД", иначе уведомление в Telegram не уйдет!')
-                    };
                     console.log('-------------------VISA_PODPIS LOAD-------------------');
                 }
             }, (50));
@@ -134,84 +147,87 @@ if (checked){
 
         /*
         *   Обработчик отчёта
+        *   {title, url, type, status, text, from}
         */
 
-        // + Обработчик отчёта, получение отчёта
-        $('body').on("click", '#Save-btn-reply', function () {
+        //  Обработчик отчёта, получение отчёта
+        $('body').on("click", '#Save-btn-reply', async function () {
             //Из РК
             if (doc_rc.test(window.opener.location.href) || doc_rcpd.test(window.opener.location.href))
             {
-                //Кто назначил
-                var from = window.opener.$('#resСontainer a.cl.DEPARTMENT').last().text().split(' ');
-                from = from[1] + ' ' + from[0];
-                var a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
-                var sub;
-                if (a[0].selectedIndex == '-1')
+                let data = {};
+                data.title = window.opener.document.title;
+                data.url = window.opener.location.href;
+                data.type = "answer";
+                let a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
+                if (a[0].selectedIndex == '-1' || a[0].selectedIndex == '0' )
                 {
-                    sub = '<b>Не выбран</b>';
+                    data.status = 'Не выбран';
                 }
                 else
                 {
-                    sub = '<b>' + a[0].options[a[0].selectedIndex].text + '</b>';
+                    data.status = a[0].options[a[0].selectedIndex].text;
                 }
-                pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, from, sub);
-            }
-            //Из списка
-            else
-            {
-                //var a = window.opener.document.getElementById('test').parentNode.parentNode.parentNode
-                //var tRk = a.childNodes[4].textContent + ' от ' + a.childNodes[5].textContent
-                //var tUrl = window.location.protocol + '//esed.sakha.gov.ru/esed/Pages' + a.childNodes[4].children[0].children[0].attributes['href'].textContent.replace(/^.{2}/, '')
-                //pullTg(tRk, tUrl, 'answer', document.getElementById('16_REPLY_List_REPLY_TEXT').value, $('div.resolutionRoute-item a.cl.DEPARTMENT').last().text());
+                if (document.querySelector('[id$=_REPLY_List_REPLY_TEXT').value.length > 0)
+                {
+                    data.text = document.querySelector('[id$=_REPLY_List_REPLY_TEXT').value.trim();
+                }
+                data.author = document.querySelector('.cl.DEPARTMENT.cab').innerText;
+                data.from = userid;
+                if (!outdated){
+                    await pullTg(data);
+                }
             }
             btn = document.getElementById('Save-btn-reply');
             btn.setAttribute('data-action', '.Save');
             btn.removeAttribute('id');
-            setTimeout(function() {
-                btn.click();
-            }, (1200));
+            btn.click();
         });
 
         /*
         *   Обработчик отправки визы и подписи
+        *   {title, url, type, list, from}
         */
 
-        // + Обработчик визы и подписи, направление на визу и подпись
-        $('body').on("click", '#Send-btn-visa', function () {
-            var str = '', btn, slc = '', txt = '', type = '';
-            var podpis = new RegExp(/.*подпис.*/i);
+        //  Обработчик визы и подписи, направление на визу и подпись
+        $('body').on("click", '#Send-btn-visa', async function () {
+            let list, data = {};
+            let podpis = new RegExp(/.*подпис.*/i);
+            data.title = window.opener.document.title;
+            data.url = window.opener.location.href;
             //Определение типа
             if (podpis.test(document.title))
             {
-                type = 'podpis-send';
+                data.type = 'sign-send';
             }
             else
             {
-                type = 'visa-send'
+                data.type = 'visa-send'
             }
             //Адресаты
             if (visa.test(document.location.href))
             {
-                slc = document.querySelector('.simpleList.ui-sortable').textContent.trim().length > 0;
-                txt = document.querySelector('.simpleList.ui-sortable').innerText.split('\n').map(Function.prototype.call, String.prototype.trim).toString();
+                list = document.querySelector('.simpleList.ui-sortable').textContent.trim().length > 0;
+                data.list = document.querySelector('.simpleList.ui-sortable').innerText.split('\n').map(Function.prototype.call, String.prototype.trim).toString();
             }
             else
             {
-                slc = document.querySelector('div.content div.row p.clipped').textContent.trim().length > 0;
-                txt = document.querySelector('div.content div.row p.clipped').textContent.trim().toString();
+                list = document.querySelector('div.content div.row p.clipped').textContent.trim().length > 0;
+                data.list = document.querySelector('div.content div.row p.clipped').textContent.trim().toString();
             }
-            if (slc)
+            if (list)
             {
                 //Срок
                 if (document.getElementById('3_undefined_PERIOD').value.length > 0)
                 {
-                    pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt);
+                    data.from = userid;
+                    if (!outdated){
+                        await pullTg(data);
+                    }
                     btn = document.getElementById('Send-btn-visa');
                     btn.setAttribute('data-action', '.APPLY 1');
                     btn.removeAttribute('id');
-                    setTimeout(function() {
-                        btn.click();
-                    }, (1200));
+                    btn.click();
                 }
                 else
                 {
@@ -226,57 +242,61 @@ if (checked){
 
         /*
         *   Обработчик визы и подписи
+        *   {title, url, author, type, status, [comment], from}
         */
 
-        // + Обработчик визы и подписи
-        $('body').on("click", '#Send-btn-visa-podpis', function () {
-            var str = '', btn, slc = '', txt = '', type = '', state = '', com = '', sub = undefined;
-            var podpis = new RegExp(/.*подпис.*/i);
-            var to = [];
-            for (var i = 0; i < window.opener.document.querySelectorAll('div.lstItem a').length; i++)
-            {
-                to.push(window.opener.document.querySelectorAll('div.lstItem a')[i].text.trim());
-            }
+        //  Обработчик визы и подписи
+        $('body').on("click", '#Send-btn-visa-sign', async function () {
+            let data = {};
+            let podpis = new RegExp(/.*подпис.*/i);
+            data.title = window.opener.document.title;
+            data.url = window.opener.location.href;
+            data.author = window.opener.document.getElementById('HiddenElement').attributes['author'].value;
             if (podpis.test(document.title))
             {
-                type = 'podpis';
-                txt += '<b>' + $('input[name=signType]:checked').prop('labels')[1].innerText.trim() + '</b>';
+                data.type = 'sign';
+                data.status = $('input[name=signType]:checked').prop('labels')[1].innerText.trim();
             }
             else
             {
-                type = 'visa';
-                var a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
-                txt += '<b>' + a[0].options[a[0].selectedIndex].text + '</b>';
+                data.type = 'visa';
+                let a = document.querySelector('.repStatus.ctrlHolder').getElementsByTagName('select');
+                data.status = a[0].options[a[0].selectedIndex].text;
             }
-            if (document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.length > 0)
+            if (document.querySelector('[id$=_PRJ_VISA_SIGN_List_REP_TEXT').value.length > 0)
             {
-                txt += '<i> | Комментарий</i>:';
-                sub = document.getElementById('13_PRJ_VISA_SIGN_List_REP_TEXT').value.trim();
+                data.comment = document.querySelector('[id$=_PRJ_VISA_SIGN_List_REP_TEXT').value.trim();
             }
-            pullTg(window.opener.document.title, window.opener.location.href.replace(/#/gi, '%23'), type, txt, to.toString(), sub);
-            btn = document.getElementById('Send-btn-visa-podpis');
+            data.from = userid;
+            if (!outdated){
+                await pullTg(data);
+            }
+            btn = document.getElementById('Send-btn-visa-sign');
             btn.setAttribute('data-action', '.Save');
             btn.removeAttribute('id');
-            setTimeout(function() {
-                btn.click();
-            }, (1200));
-
+            btn.click();
         });
     });
 }
 
-function pullTg(rk, url, type, text, to, subtext){
-    //var path = 'http://127.0.0.1:8080/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
-    var path = 'https://esedtotg.herokuapp.com/api?app=esed&version='+ GM_info.script.version + '&userid=' + userid + '&to=' + to +'&number=' + rk + '&type=' + type + '&text=' + text + '&subtext=' + subtext+ '&url=' + url;
-    $.ajax({
-        url: path,
-        type: 'GET',
-        dataType: 'html',
+async function pullTg(data){
+    await $.ajax({
+        url: apiPath,
+        type: 'POST',
+        data: data,
         success: function(res)
         {
-            console.log('Отправлено');
+            console.log('Ответ: ' + res.status);
         }
     });
+}
+
+function addHiddenElem(author){
+    var node = document.createElement('div');
+    node.setAttribute('style', 'display:none;');
+    node.setAttribute('id', 'HiddenElement');
+    node.setAttribute('author', author);
+    document.getElementById('aspnetForm').appendChild(node);
 }
 
 function addSettings(){
@@ -300,4 +320,45 @@ function addSettings(){
     if (GM_getValue('tg_userID') != '' && typeof GM_getValue('tg_userID') != 'undefined'){
         document.getElementById('addUserid').value = GM_getValue('tg_userID');
     }
+}
+
+function addUpdate(current, actual){
+    let html = '<form id="addFormUpdate">Версия скрипта устарела. Текущая версия: <b>' + current + '</b>. Актуальная верся: <b>' + actual + '</b>. Уведомления не будут уходить пока не обновите скрипт!</form>';
+    let node = document.createElement('div');
+    node.setAttribute('style', 'display:none;');
+    node.setAttribute('id', 'updateBlock');
+    node.setAttribute('title', 'Устаревшая версия');
+    node.innerHTML = html;
+    document.getElementById('aspnetForm').appendChild(node);
+    $("#updateBlock").dialog({
+        buttons:{
+            "Закрыть":function(){
+                $(this).dialog("close");
+            },
+            "Обновить":function(){
+                //$(this).dialog("close");
+                let win = window.open(scriptUrl);
+                win.focus();
+            }
+        }},{
+        modal:true,
+        width:400,
+        height:220
+    });
+}
+
+function getVersion(){
+    $.ajax({
+        url: apiPath,
+        type: 'get',
+        success: function(res)
+        {
+            console.log('Версия: ' + res.version);
+            if ( GM_info.script.version != res.version){
+                outdated = true;
+                addUpdate(GM_info.script.version, res.version)
+            }
+        },
+        error: function(err){alert(err)}
+    });
 }
