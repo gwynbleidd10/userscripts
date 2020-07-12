@@ -19,6 +19,7 @@
 const userid = GM_getValue('tg_userID'); //ID пользователя Telegram.
 const apiPath = 'https://botsnode.herokuapp.com/api/esed' //'http://localhost:3000/api/esed';
 const scriptUrl = 'https://github.com/gwynbleidd10/userscripts/raw/master/ESEDtoTG.user.js';
+const mode = 'prod' //prod, debug
 
 /*
 ------------------------------------------------------------------------------------------------------
@@ -178,10 +179,13 @@ if (checked){
                     await pullTg(data);
                 }
             }
-            btn = document.getElementById('Save-btn-reply');
-            btn.setAttribute('data-action', '.Save');
-            btn.removeAttribute('id');
-            btn.click();
+            if (mode == 'prod')
+            {
+                btn = document.getElementById('Save-btn-reply');
+                btn.setAttribute('data-action', '.Save');
+                btn.removeAttribute('id');
+                btn.click();
+            }
         });
 
         /*
@@ -224,10 +228,13 @@ if (checked){
                     if (!outdated){
                         await pullTg(data);
                     }
-                    btn = document.getElementById('Send-btn-visa');
-                    btn.setAttribute('data-action', '.APPLY 1');
-                    btn.removeAttribute('id');
-                    btn.click();
+                    if (mode == 'prod')
+                    {
+                        btn = document.getElementById('Send-btn-visa');
+                        btn.setAttribute('data-action', '.APPLY 1');
+                        btn.removeAttribute('id');
+                        btn.click();
+                    }
                 }
                 else
                 {
@@ -271,10 +278,13 @@ if (checked){
             if (!outdated){
                 await pullTg(data);
             }
-            btn = document.getElementById('Send-btn-visa-sign');
-            btn.setAttribute('data-action', '.Save');
-            btn.removeAttribute('id');
-            btn.click();
+            if (mode == 'prod')
+            {
+                btn = document.getElementById('Send-btn-visa-sign');
+                btn.setAttribute('data-action', '.Save');
+                btn.removeAttribute('id');
+                btn.click();
+            }
         });
     });
 }
