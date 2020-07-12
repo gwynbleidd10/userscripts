@@ -17,7 +17,6 @@
 */
 
 const userid = GM_getValue('tg_userID'); //ID пользователя Telegram.
-const apiPath = 'https://botsnode.herokuapp.com/api/esed' //'http://localhost:3000/api/esed';
 const scriptUrl = 'https://github.com/gwynbleidd10/userscripts/raw/master/ESEDtoTG.user.js';
 const mode = 'prod' //prod, debug
 
@@ -37,6 +36,17 @@ else
 {
     addSettings();
 }
+
+if (mode == 'debug')
+{
+    const apiPath = 'http://localhost:3000/api/esed';
+}
+else
+{
+    const apiPath = 'https://botsnode.herokuapp.com/api/esed';
+}
+
+
 
  /*
 ------------------------------------------------------------------------------------------------------
