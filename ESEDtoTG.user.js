@@ -28,6 +28,7 @@ const mode = 'prod' //prod, debug
 
 let checked = false;
 let outdated = false;
+let apiPath = '';
 if ((typeof userid != 'undefined') && (userid != ''))
 {
     checked = true;
@@ -39,11 +40,11 @@ else
 
 if (mode == 'debug')
 {
-    const apiPath = 'http://localhost:3000/api/esed';
+    apiPath = 'http://localhost:3000/api/esed';
 }
 else
 {
-    const apiPath = 'https://botsnode.herokuapp.com/api/esed';
+    apiPath = 'https://botsnode.herokuapp.com/api/esed';
 }
 
 
@@ -158,7 +159,7 @@ if (checked){
 
         /*
         *   Обработчик отчёта
-        *   {title, url, type, status, text, from}
+        *   {title, url, type, status, text, author, from}
         */
 
         //  Обработчик отчёта, получение отчёта
