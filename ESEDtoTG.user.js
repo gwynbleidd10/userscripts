@@ -72,12 +72,7 @@ if (checked) {
         console.log('-------------------PAGE LOAD-------------------');
 
         getVersion();
-
-        /*var node = document.createElement('span');
-        node.setAttribute('style', 'float: right; margin-right: 2em; cursor: pointer;');
-        node.innerText = 'версия скрипта ' + GM_info.script.version;
-        document.querySelector('.copyright').appendChild(node);*/
-
+        
         /*
         *   Проверка текущей страницы
         */
