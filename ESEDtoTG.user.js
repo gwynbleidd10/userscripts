@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      2.9
+// @version      3.0
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -73,7 +73,7 @@ if (checked) {
         console.log('-------------------PAGE LOAD-------------------');
 
         getVersion();
-        
+
         /*
         *   Проверка текущей страницы
         */
@@ -168,70 +168,105 @@ if (checked) {
             data.list = [];
             if (document.querySelector('.simpleList.connectedSortable.ui-sortable').textContent.trim().length > 0) {
                 if (document.querySelector('[id$=RESOLUTION_TEXT').value.trim().length > 0) {
-                    if (document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value.trim().length) {
-                        let tmp = {};
-                        tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
-                        tmp.list = document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
-                        if (document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.length > 0) {
-                            tmp.list += ',' + document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim();
-                        }
-                        if (document.querySelector(".content.resolution.current").querySelector(".ctrlState") != null) {
+                    if (document.querySelector(".content.resolution.current") != null) {
+                        if (document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value.trim().length) {
+                            let tmp = {};
+                            tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
+                            tmp.list = document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
+                            if (document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.length > 0) {
+                                tmp.list += ',' + document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim();
+                            }
+                            tmp.control = (document.querySelector(".content.resolution.current").querySelector(".ctrlState") != null) ? true : false;
                             tmp.date = document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value;
-                        }
-                        list.push(tmp);
-                        if (document.querySelectorAll(".content.resolution.resCollapsed").length > 0) {
-                            for (let i = 0; i < document.querySelectorAll(".content.resolution.resCollapsed").length; i++) {
-                                if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length > 0) {
-                                    if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim().length > 0) {
-                                        if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0] != undefined) {
-                                            tmp = {};
-                                            tmp.title = document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim();
-                                            tmp.list = '';
-                                            for (let j = 0; j < document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length; j++) {
-                                                tmp.list += (j == 0) ? "" : ",";
-                                                tmp.list += document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline")[j].innerText;
+                            list.push(tmp);
+                            if (document.querySelectorAll(".content.resolution.resCollapsed").length > 0) {
+                                for (let i = 0; i < document.querySelectorAll(".content.resolution.resCollapsed").length; i++) {
+                                    if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length > 0) {
+                                        if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim().length > 0) {
+                                            if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0] != undefined) {
+                                                tmp = {};
+                                                tmp.title = document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim();
+                                                tmp.list = '';
+                                                for (let j = 0; j < document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length; j++) {
+                                                    tmp.list += (j == 0) ? "" : ",";
+                                                    tmp.list += document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline")[j].innerText;
+                                                }
+                                                tmp.control = (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".ctrlState") != null) ? true : false;
+                                                tmp.date = document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0].innerText;
+                                                list.push(tmp);
                                             }
-                                            tmp.date = document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0].innerText;
-                                            list.push(tmp);
+                                            else {
+                                                alert("Необходимо указать срок исполнения поручения.");
+                                                return
+                                            }
                                         }
                                         else {
-                                            alert("Необходимо указать срок исполнения поручения.");
+                                            alert('Не указан текст поручения.');
                                             return
                                         }
                                     }
                                     else {
-                                        alert('Не указан текст поручения.');
+                                        alert('Необходимо добавить исполнителей.');
                                         return
                                     }
                                 }
-                                else {
-                                    alert('Необходимо добавить исполнителей.');
+                            }
+                            //Контролер
+                            if (document.querySelector(".readOnly") != null) {
+                                if (document.querySelector(".readOnly").value.trim().length == 0) {
+                                    alert('Не указан контролер.')
                                     return
                                 }
                             }
-                        }
-                        //Контролер
-                        if (document.querySelector(".readOnly") != null) {
-                            if (document.querySelector(".readOnly").value.trim().length == 0) {
-                                alert('Не указан контролер.')
-                                return
+                            data.list = list;
+                            data.from = userid;
+                            if (!outdated) {
+                                await pullTg(data);
+                            }
+                            if (mode == 'prod') {
+                                btn = document.getElementById('save-btn-resolution');
+                                btn.setAttribute('data-action', '.Направить_на_исполнение');
+                                btn.removeAttribute('id');
+                                btn.click();
                             }
                         }
-                        data.list = list;
-                        data.from = userid;
-                        console.log(data.list);
-                        if (!outdated) {
-                            await pullTg(data);
-                        }
-                        if (mode == 'prod') {
-                            btn = document.getElementById('save-btn-resolution');
-                            btn.setAttribute('data-action', '.Направить_на_исполнение');
-                            btn.removeAttribute('id');
-                            btn.click();
+                        else {
+                            alert("Необходимо указать срок исполнения поручения.");
                         }
                     }
                     else {
-                        alert("Необходимо указать срок исполнения поручения.");
+                        if (document.querySelector(".content.resolution").querySelector(".dateFormat.hasDatepicker").value.trim().length) {
+                            let tmp = {};
+                            tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
+                            tmp.list = document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
+                            if (document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.length > 0) {
+                                tmp.list += ',' + document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim();
+                            }
+                            tmp.control = (document.querySelector(".content.resolution").querySelector(".ctrlState") != null) ? true : false;
+                            tmp.date = document.querySelector(".content.resolution").querySelector(".dateFormat.hasDatepicker").value;
+                            list.push(tmp);
+                            //Контролер
+                            if (document.querySelector(".readOnly") != null) {
+                                if (document.querySelector(".readOnly").value.trim().length == 0) {
+                                    alert('Не указан контролер.')
+                                    return
+                                }
+                            }
+                            data.list = list;
+                            data.from = userid;
+                            if (!outdated) {
+                                await pullTg(data);
+                            }
+                            if (mode == 'prod') {
+                                btn = document.getElementById('save-btn-resolution');
+                                btn.setAttribute('data-action', '.Направить_на_исполнение');
+                                btn.removeAttribute('id');
+                                btn.click();
+                            }
+                        }
+                        else {
+                            alert("Необходимо указать срок исполнения поручения.");
+                        }
                     }
                 }
                 else {
