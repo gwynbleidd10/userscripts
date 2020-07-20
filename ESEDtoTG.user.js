@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      2.8
+// @version      2.8.2
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -442,7 +442,7 @@ function getVersion() {
         type: 'get',
         success: function (res) {
             console.log('Версия: ' + res.version);
-            if (GM_info.script.version != res.version) {
+            if (GM_info.script.version < res.version) {
                 outdated = true;
                 addUpdate(GM_info.script.version, res.version)
             }
