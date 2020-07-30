@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      3.3
+// @version      3.4
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -166,99 +166,106 @@ if (checked) {
             data.url = window.opener.location.href;
             data.type = "resolution";
             data.list = [];
-            if (document.querySelector('.simpleList.connectedSortable.ui-sortable').textContent.trim().length > 0) {
-                if (document.querySelector('[id$=RESOLUTION_TEXT').value.trim().length > 0) {
-                    if (document.querySelector(".content.resolution.current") != null) {
-                        let tmp = {};
-                        tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
+            if (document.querySelector('[id$=RESOLUTION_TEXT').value.trim().length > 0) {
+                if (document.querySelector(".content.resolution.current") != null) {
+                    let tmp = {};
+                    tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
+                    if (document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().length > 0 || document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim().length > 0) {
                         tmp.list = document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
-                        if (document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.length > 0) {
-                            tmp.list += ',' + document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim();
-                        }
-                        tmp.control = (document.querySelector(".content.resolution.current").querySelector(".ctrlState") != null) ? true : false;
-                        tmp.date = (document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value.trim().length > 0) ? document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value : "Без указания времени";
-                        list.push(tmp);
-                        if (document.querySelectorAll(".content.resolution.resCollapsed").length > 0) {
-                            for (let i = 0; i < document.querySelectorAll(".content.resolution.resCollapsed").length; i++) {
+                        tmp.list += (document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[0].innerText.length > 0) ? ',': '';
+                        tmp.list += document.querySelector(".content.resolution.current").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
+                    }
+                    else
+                    {
+                        alert('Необходимо добавить хотя бы одного исполнителя.')
+                        return
+                    }
+                    tmp.control = (document.querySelector(".content.resolution.current").querySelector(".ctrlState") != null) ? true : false;
+                    tmp.date = (document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value.trim().length > 0) ? document.querySelector(".content.resolution.current").querySelector(".dateFormat.hasDatepicker").value : "Без указания времени";
+                    list.push(tmp);
+                    if (document.querySelectorAll(".content.resolution.resCollapsed").length > 0) {
+                        for (let i = 0; i < document.querySelectorAll(".content.resolution.resCollapsed").length; i++) {
+                            if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim().length > 0) {
+                                tmp = {};
+                                tmp.title = document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim();
                                 if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length > 0) {
-                                    if (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim().length > 0) {
-                                        tmp = {};
-                                        tmp.title = document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector('div:not([class])').innerText.trim();
-                                        tmp.list = '';
-                                        for (let j = 0; j < document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length; j++) {
-                                            tmp.list += (j == 0) ? "" : ",";
-                                            tmp.list += document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline")[j].innerText;
-                                        }
-                                        tmp.control = (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".ctrlState") != null) ? true : false;
-                                        tmp.date = (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0] != undefined) ? document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0].innerText : "Без указания времени";
-                                        list.push(tmp);
-                                    }
-                                    else {
-                                        alert('Не указан текст поручения.');
-                                        return
+                                    tmp.list = '';
+                                    for (let j = 0; j < document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline").length; j++) {
+                                        tmp.list += (j == 0) ? "" : ",";
+                                        tmp.list += document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelectorAll(".singleline")[j].innerText.trim();
                                     }
                                 }
                                 else {
-                                    alert('Необходимо добавить исполнителей.');
+                                    alert('Необходимо добавить хотя бы одного исполнителя.')
                                     return
                                 }
+                                tmp.control = (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".ctrlState") != null) ? true : false;
+                                tmp.date = (document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0] != undefined) ? document.querySelectorAll(".content.resolution.resCollapsed")[i].querySelector(".right").getElementsByTagName('span')[0].innerText : "Без указания времени";
+                                list.push(tmp);
                             }
-                        }
-                        //Контролер
-                        if (document.querySelector(".readOnly") != null) {
-                            if (document.querySelector(".readOnly").value.trim().length == 0) {
-                                alert('Не указан контролер.')
+                            else {
+                                alert('Не указан текст другого поручения.');
                                 return
                             }
-                        }
-                        data.list = list;
-                        data.from = userid;
-                        if (!outdated) {
-                            await pullTg(data);
-                        }
-                        if (mode == 'prod') {
-                            btn = document.getElementById('save-btn-resolution');
-                            btn.setAttribute('data-action', '.Направить_на_исполнение');
-                            btn.removeAttribute('id');
-                            btn.click();
                         }
                     }
-                    else {
-                        let tmp = {};
-                        tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
-                        tmp.list = document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
-                        if (document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.length > 0) {
-                            tmp.list += ',' + document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim();
+                    //Контролер
+                    if (document.querySelector(".readOnly") != null) {
+                        if (document.querySelector(".readOnly").value.trim().length == 0) {
+                            alert('Не указан контролер.')
+                            return
                         }
-                        tmp.control = (document.querySelector(".content.resolution").querySelector(".ctrlState") != null) ? true : false;
-                        tmp.date = (document.querySelector(".content.resolution").querySelector(".dateFormat.hasDatepicker").value.trim().length) ? document.querySelector(".content.resolution").querySelector(".dateFormat.hasDatepicker").value : "Без указания времени";
-                        list.push(tmp);
-                        //Контролер
-                        if (document.querySelector(".readOnly") != null) {
-                            if (document.querySelector(".readOnly").value.trim().length == 0) {
-                                alert('Не указан контролер.')
-                                return
-                            }
-                        }
-                        data.list = list;
-                        data.from = userid;
-                        if (!outdated) {
-                            await pullTg(data);
-                        }
-                        if (mode == 'prod') {
-                            btn = document.getElementById('save-btn-resolution');
-                            btn.setAttribute('data-action', '.Направить_на_исполнение');
-                            btn.removeAttribute('id');
-                            btn.click();
-                        }
+                    }
+                    data.list = list;
+                    data.from = userid;
+                    if (!outdated) {
+                        await pullTg(data);
+                    }
+                    if (mode == 'prod') {
+                        btn = document.getElementById('save-btn-resolution');
+                        btn.setAttribute('data-action', '.Направить_на_исполнение');
+                        btn.removeAttribute('id');
+                        btn.click();
                     }
                 }
                 else {
-                    alert('Не указан текст поручения.');
+                    let tmp = {};
+                    tmp.title = document.querySelector('[id$=RESOLUTION_TEXT').value.trim();
+                    if (document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().length > 0 || document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim().length > 0){
+                        tmp.list = document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
+                        tmp.list += (document.querySelector('.simpleList.connectedSortable.ui-sortable').innerText.trim().length > 0) ? ',' : '';
+                        tmp.list += document.querySelector(".content.resolution").querySelectorAll(".simpleList.connectedSortable.ui-sortable")[1].innerText.trim().split('\n').map(Function.prototype.call, String.prototype.trim).toString();
+                    }
+                    else
+                    {
+                        alert('Необходимо добавить хотя бы одного исполнителя.')
+                        return
+                    }
+                    tmp.control = (document.querySelector(".content.resolution").querySelector(".ctrlState") != null) ? true : false;
+                    tmp.date = (document.querySelector(".content.resolution").querySelector(".dateFormat.hasDatepicker").value.trim().length) ? document.querySelector(".content.resolution").querySelector(".dateFormat.hasDatepicker").value : "Без указания времени";
+                    list.push(tmp);
+                    //Контролер
+                    if (document.querySelector(".readOnly") != null) {
+                        if (document.querySelector(".readOnly").value.trim().length == 0) {
+                            alert('Не указан контролер.')
+                            return
+                        }
+                    }
+                    data.list = list;
+                    data.from = userid;
+                    if (!outdated) {
+                        await pullTg(data);
+                    }
+                    if (mode == 'prod') {
+                        btn = document.getElementById('save-btn-resolution');
+                        btn.setAttribute('data-action', '.Направить_на_исполнение');
+                        btn.removeAttribute('id');
+                        btn.click();
+                    }
                 }
             }
             else {
-                alert('Необходимо добавить исполнителей.')
+                alert('Не указан текст поручения.');
             }
         });
 
@@ -391,6 +398,9 @@ async function pullTg(data) {
         data: data,
         success: function (res) {
             console.log('Ответ: ' + res.status);
+        },
+        error: function (err) {
+            console.log(err)
         }
     });
 }
