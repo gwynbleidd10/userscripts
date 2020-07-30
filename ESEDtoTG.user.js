@@ -265,6 +265,7 @@ if (checked) {
                 }
             }
             else {
+                M.toast({html: 'test'});
                 alert('Не указан текст поручения.');
             }
         });
