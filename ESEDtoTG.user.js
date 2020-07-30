@@ -404,7 +404,7 @@ function addHiddenElem(author) {
 }
 
 function addSettings() {
-    var html = '<form id="addForm">Введите UserID полученный от бота: <input type="text" id="addUserid" style="width: 100%;"/></form>';
+    var html = '<form id="addForm">Введите TelegramID полученный от бота: <input type="text" id="addUserid" style="width: 100%;"/></form>';
     var node = document.createElement('div');
     node.setAttribute('style', 'display:none;');
     node.setAttribute('id', 'elementId');
