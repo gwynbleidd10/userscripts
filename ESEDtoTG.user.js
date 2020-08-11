@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ESEDtoTG
 // @namespace    http://tampermonkey.net/
-// @version      3.4
+// @version      3.5
 // @description  try to take over the world!
 // @author       Frey10
 // @match        *://esed.sakha.gov.ru/*
@@ -329,8 +329,8 @@ if (checked) {
                 data.list = document.querySelector('.simpleList.ui-sortable').innerText.split('\n').map(Function.prototype.call, String.prototype.trim).toString();
             }
             else {
-                list = document.querySelector('div.content div.row p.clipped').textContent.trim().length > 0;
-                data.list = document.querySelector('div.content div.row p.clipped').textContent.trim().toString();
+                list = document.querySelector('div.simpleList.ui-sortable').innerText.trim().length > 0;
+                data.list = document.querySelector('div.simpleList.ui-sortable').innerText.trim().toString();
             }
             if (list) {
                 //Срок
